@@ -1,5 +1,4 @@
-go.mod
 go.sum
 /go-trxwallet
 
-data/*
+data/*.txt
