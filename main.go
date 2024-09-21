@@ -24,18 +24,6 @@ const (
 
 var regexList []*regexp.Regexp
 
-func init() {
-	// Initialize the regular expressions for the match
-	numList := []int{5, 6, 8, 9}
-	for _, num := range numList {
-		re, err := regexp.Compile(fmt.Sprintf("(%d){%d}$", num, defaultMatches))
-		if err != nil {
-			log.Fatalf("Failed to compile regex: %v", err)
-		}
-		regexList = append(regexList, re)
-	}
-}
-
 func generateWallet() (b5, pk string) {
 	privateKey, _ := crypto.GenerateKey()
 	privateKeyBytes := crypto.FromECDSA(privateKey)
@@ -52,6 +40,10 @@ func generateWallet() (b5, pk string) {
 }
 
 func matchAddress(address string) bool {
+	if len(regexList) == 0 {
+		return true
+	}
+
 	for _, re := range regexList {
 		if re.MatchString(address) {
 			return true
@@ -119,20 +111,23 @@ func main() {
 			matches := c.Int("matches")
 			printFreq := c.Int("print")
 
-			if matches < 1 {
-				return fmt.Errorf("matches should be greater than 0")
+			if matches < 0 {
+				return fmt.Errorf("matches should be positive")
 			}
 
 			// Update regexList with the new matches
 			regexList = nil
 			numList := []int{5, 6, 8, 9}
-			for _, num := range numList {
-				re, err := regexp.Compile(fmt.Sprintf("(%d){%d}$", num, matches))
-				if err != nil {
-					return fmt.Errorf("failed to compile regex: %v", err)
+			if matches > 0 {
+				for _, num := range numList {
+					re, err := regexp.Compile(fmt.Sprintf("(%d){%d}$", num, matches))
+					if err != nil {
+						return fmt.Errorf("failed to compile regex: %v", err)
+					}
+					regexList = append(regexList, re)
 				}
-				regexList = append(regexList, re)
 			}
+			
 
 			var wg sync.WaitGroup
 			var matchCount int
