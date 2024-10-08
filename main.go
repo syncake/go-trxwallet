@@ -128,6 +128,7 @@ func main() {
 				}
 			}
 			
+			fmt.Printf("Running with threads(t): %d, matches(n): %d, print(d): %d\n", threads, matches, printFreq)
 
 			var wg sync.WaitGroup
 			var matchCount int
